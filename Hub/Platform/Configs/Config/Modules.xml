@@ -1,0 +1,22 @@
+﻿<Modules>
+  <!-- zwave driver -->
+  <Module FriendlyName="zwavezensys" AppName="zwave driver based on zensys sdk" BinaryName="HomeOS.Hub.Drivers.ZwaveZensys_4_55" AutoStart="1" Background="1">
+    <Args Count="0"/> 
+  </Module>
+
+  <!-- dummy -->
+  <Module FriendlyName="DriverDummy" AppName="DriverDummy" BinaryName="HomeOS.Hub.Drivers.Dummy" AutoStart="1" Background="1" Version="1.0.0.0">
+    <Args Count="1" val1="Hero"/>
+  </Module>
+
+  <Module FriendlyName="DriverDummy2" AppName="DriverDummy2" BinaryName="HomeOS.Hub.Drivers.Dummy2" AutoStart="1" Background="1" Version="1.0.0.0">
+    <Args Count="1" val1="Hero"/>
+  </Module>
+  
+  <Module FriendlyName="AppDummy2" AppName="AppDummy2" BinaryName="HomeOS.Hub.Apps.Dummy2" AutoStart="1" Version="1.0.0.0">
+    <Args Count="1" val1="Zero"/>
+    <RoleList>
+      <Role Name=":dummy:"/> <!--used for categorizing apps in the app store; not needed for running-->
+    </RoleList>
+  </Module>
+</Modules>

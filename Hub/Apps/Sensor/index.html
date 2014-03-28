@@ -1,0 +1,68 @@
+﻿<script type="text/javascript" src="../GuiWeb/homeos-1.1.js"></script>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <title> Sensor Logger</title>
+   <script type="text/javascript" src="../GuiWeb/jquery-1.7.1.js"></script>
+      <script type="text/javascript" src="../GuiWeb/common.js"></script>  <!--contains helpful calls for calling WCF service-->
+  <link rel="Stylesheet" type="text/css" href="Styles/Sensor.css" />
+
+    <script>
+
+        var sensorCheck;
+
+        $(document).ready(
+            function () {
+
+                ShowSensorPortsInfo();
+                //Set up to refresh alerts every 2 seconds
+                sensorCheck = setInterval(function () { ShowSensorPortsInfo() }, 2000);
+                //To stop do this: clearInterval(sensorCheck);           
+            }
+        );
+
+        function ShowSensorPortsInfo() {
+            new PlatformServiceHelper().MakeServiceCall("webapp/GetReceivedMessages", "", GetReceivedMessagesCallback);
+        }
+
+
+        function GetReceivedMessagesCallback(context, result) {
+            var portsInfo = result.GetReceivedMessagesResult;
+            $("#SensorList").html('');
+            for (i = 0; i < result.GetReceivedMessagesResult.length; i++) {
+                $("#SensorList").append(portsInfo[i] + "<br />");
+            }
+        }
+
+    </script>
+</head>
+<body>
+
+    <div class="dashboard_toolbar">
+            <div class="homeID_title"><a href="../GuiWeb/index.html">Dashboard</a> | Sensor </div>
+        </div>
+        
+        <div class="page">
+            <div class="row">
+                <div class="page_title col">Sensor Logger Application</div>
+            </div>
+
+<!-- Updates now happen automatically         <div><button class="app_button" id="Button1" onclick="ShowSensorPortsInfo()">Update</button></div> -->
+     
+       <div> Most recent sensor readings (100 max):</div>
+        <textarea id="SensorList" class="app_form" rows="30" cols="70" wrap="hard"></textarea>
+
+ 
+    <br />
+
+    <!--Used for debugging messages, set style="display:none" to turn off showing them, common.js will put text into div with id =divDebugInfo when calls are made to service -->
+    <div id="divSensorServiceDebug" style="display:none">
+    Sensor Service Status Debug Info: <p id="divDebugInfo"></p>
+    </div>
+
+   
+</div>
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+﻿<Services>
+  <Service Location="Living room" FriendlyName="port-DriverDummy" Module="DriverDummy" ModuleFacingName="port" >
+    <Role Name=":dummy:" />
+  </Service>
+
+  <Service Location="Indoors" FriendlyName="port-DriverDummy2" Module="DriverDummy2" ModuleFacingName="port" >
+    <Role Name=":dummy2:" />
+  </Service>
+</Services>
