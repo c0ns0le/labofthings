@@ -3,6 +3,7 @@
 // cache the frequently used GetImage Service Helpers
 var g_smartCamGetImageServiceHelper = null;
 var g_isRecording = false;
+var grabPic = false;
 var g_keepalive;
 var g_currentCamera = "";
 var g_maxClipsToDisplay = 5;
@@ -65,7 +66,7 @@ function CameraSelected() {
         $("#left").show();  //show the pan/tilt
         $("#right").show();
         $("#up").show();
-        $("#down").show();   
+        $("#down").show();
     }
     else {
         $("#left").hide();  //show the pan/tilt
@@ -88,7 +89,7 @@ function CameraSelected() {
 function isPTCamera(cameraName) {
     if (null == CAMERA_INFORMATION_ARRAY)
         return false;
-   
+
     for (var i = 1; i + 1 < CAMERA_INFORMATION_ARRAY.length; i = i + 2) {
         if (CAMERA_INFORMATION_ARRAY[i] == cameraName) {
             return (CAMERA_INFORMATION_ARRAY[i + 1].indexOf(":ptcamera") != "-1");
@@ -105,21 +106,28 @@ function ControlCameraCallback(context, result) {
     //Someday we might want to do something here
     if (result[0] != "") {
         DisplayDebugging("ControlCameraCallback:" + result[0]);
-   }
-   
+    }
+
 }
 
-
+function wantPic() {
+    grabPic = true;
+}
 function GetImage() {
- 
+
     if (null == g_smartCamGetImageServiceHelper) {
         g_smartCamGetImageServiceHelper = new PlatformServiceHelper();
     }
-
+    //alert("it gets in getImage JS");
     g_smartCamGetImageServiceHelper.MakeServiceCall("webapp/GetWebImage", '{"cameraFriendlyName": "' + g_currentCamera + '"}', GetWebImageCallback);
 }
 
 function GetWebImageCallback(context, result) {
+    //alert("it gets in the callback");
+    if (grabPic) {
+        $('#justPic').attr('src', "data:image/jpg;base64," + result);
+        grabPic = false;
+    }
     $('#camera1Image').attr('src', "data:image/jpg;base64," + result);
     GetImage();
 }
@@ -163,7 +171,7 @@ function StopRecord() {
     setTimeout(function () {
         GetRecordedClips();
     }, 1000 /* milliseconds – this is the delay until your function gets called */);
-           
+
 }
 
 
@@ -223,7 +231,7 @@ function GetRecordedClipsCallback(context, result) {
 //Figure out toggle state for whether or not motion based recording is happening
 
 function GetMotionRecordingState() {
-    new PlatformServiceHelper().MakeServiceCall("webapp/IsMotionTriggerEnabled", '{"cameraFriendlyName": "' + g_currentCamera +  '"}', GetIsMotionTriggeredCallback);
+    new PlatformServiceHelper().MakeServiceCall("webapp/IsMotionTriggerEnabled", '{"cameraFriendlyName": "' + g_currentCamera + '"}', GetIsMotionTriggeredCallback);
 }
 
 function GetIsMotionTriggeredCallback(context, result) {
@@ -244,7 +252,7 @@ function ToggleMotionRecording(cbox) {
     if (cbox.checked) {
         newState = true;
     }
-    new PlatformServiceHelper().MakeServiceCall("webapp/EnableMotionTrigger", '{"cameraFriendlyName": "' + g_currentCamera + '","enable": "' + newState  + '"}', ToggleMotionTriggeredCallback);
+    new PlatformServiceHelper().MakeServiceCall("webapp/EnableMotionTrigger", '{"cameraFriendlyName": "' + g_currentCamera + '","enable": "' + newState + '"}', ToggleMotionTriggeredCallback);
 }
 
 function ToggleMotionTriggeredCallback(context, result) {
