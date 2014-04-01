@@ -124,6 +124,12 @@ function GetWebImageCallback(context, result) {
     GetImage();
 }
 
+function Snapshot() {
+
+    new PlatformServiceHelper().MakeServiceCall("webapp/TakeImage", '{"cameraFriendlyName": "' + g_currentCamera + '"}', RecordVideoCallback);
+
+
+}
 
 function RecordToggle() {
 
@@ -143,7 +149,7 @@ function RecordToggle() {
 
 //Starting video will sends start message and starts a timeout to send keepalives.
 function StartRecord() {
-    g_keepalive = setInterval(function () { DoKeepAlive() }, 25000);  //24 second call keepalive to keep recording going - if page changes recording will timeout after 30 seconds
+    //g_keepalive = setInterval(function () { DoKeepAlive() }, 25000);  //24 second call keepalive to keep recording going - if page changes recording will timeout after 30 seconds
     new PlatformServiceHelper().MakeServiceCall("webapp/StartOrContinueRecording", '{"cameraFriendlyName": "' + g_currentCamera + '"}', RecordVideoCallback);
 }
 

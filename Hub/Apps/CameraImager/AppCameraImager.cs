@@ -65,6 +65,8 @@ namespace HomeOS.Hub.Apps.CameraImager
         string videosDir;
         string videosBaseUrl;
 
+        public bool wantImage = false;
+
         public override void Start()
         {
             logger.Log("Started: {0}", ToString());
@@ -190,80 +192,116 @@ namespace HomeOS.Hub.Apps.CameraImager
                     {
                         registeredCameras[senderPort].LastImageBytes = imageBytes;
 
-                        if (registeredCameras[senderPort].RecordVideo ||
-                            registeredCameras[senderPort].EnableObjectTrigger)
+                        //begin copy
+                        Rectangle rectObject = new Rectangle(0, 0, 0, 0);
+                        MemoryStream stream = new MemoryStream(imageBytes);
+                        Bitmap image = null;
+                        image = (Bitmap)Image.FromStream(stream);
+                        if (null != registeredCameras[senderPort].BitmapImage)
                         {
-                            bool addFrame = false;
-                            Rectangle rectObject = new Rectangle(0, 0, 0, 0);
-                            MemoryStream stream = new MemoryStream(imageBytes);
-                            Bitmap image = null;
-                            image = (Bitmap)Image.FromStream(stream);
-                            if (null != registeredCameras[senderPort].BitmapImage)
-                            {
-                                registeredCameras[senderPort].BitmapImage.Dispose();
-                                registeredCameras[senderPort].BitmapImage = null;
-                            }
-                            registeredCameras[senderPort].BitmapImage = image;
-
-                            //lets check if the image is what we expect
-                            if (image.PixelFormat != PixelFormat.Format24bppRgb)
-                            {
-                                string message = String.Format("Image format from {0} is not correct. PixelFormat: {1}",
-                                                                senderPort.GetInfo().GetFriendlyName(), image.PixelFormat);
-                                logger.Log(message);
-
-                                return;
-                            }
-
-                            // stop if needed
-                            StopRecording(senderPort, false /* force*/);
-
-                            //// if recording is underway don't bother that, it will stop after that clip time lapses
-                            //// if recording needs to be done only on motion (object) triggers, check with the result of the object
-                            //// detector above
-                            //if (registeredCameras[senderPort].RecordVideo)
-                            //{
-                            //    //if record video is still true, see if we need to add his frame
-                            //    if (registeredCameras[senderPort].VideoWriter != null || !registeredCameras[senderPort].EnableObjectTrigger)
-                            //    {
-                            //        addFrame = true;
-                            //    }
-                            //    else
-                            //    {
-                            //        if (registeredCameras[senderPort].ObjectFound)
-                            //            addFrame = true;
-                            //    }
-                            //}
-
-                            if (registeredCameras[senderPort].RecordVideo)
-                            {
-                                addFrame = true;
-                            }
-                            else
-                            {
-                                if (registeredCameras[senderPort].EnableObjectTrigger &&
-                                    registeredCameras[senderPort].ObjectFound)
-                                    addFrame = true;
-                            }
-
-                            if (addFrame)
-                            {
-
-                                StartRecording(senderPort, image.Width, image.Height, VIDEO_FPS_NUM, VIDEO_FPS_DEN, VIDEO_ENC_FRAMERATE);
-
-                                long sampleTime = (DateTime.Now - registeredCameras[senderPort].CurrVideoStartTime).Ticks;
-
-                                AddFrameToVideo(image, senderPort, sampleTime);
-
-                                if (registeredCameras[senderPort].ObjectFound)
-                                {
-                                    registeredCameras[senderPort].ObjectFound = false;
-                                    rectObject = registeredCameras[senderPort].LastObjectRect;
-                                    WriteObjectImage(senderPort, image, rectObject, true /* center */);
-                                }
-
-                            }
+                            registeredCameras[senderPort].BitmapImage.Dispose();
+                            registeredCameras[senderPort].BitmapImage = null;
                         }
+                        registeredCameras[senderPort].BitmapImage = image;
+
+                        //lets check if the image is what we expect
+                        if (image.PixelFormat != PixelFormat.Format24bppRgb)
+                        {
+                            string message = String.Format("Image format from {0} is not correct. PixelFormat: {1}",
+                                                            senderPort.GetInfo().GetFriendlyName(), image.PixelFormat);
+                            logger.Log(message);
+
+                            return;
+                        }
+
+                        if (wantImage)
+                        {
+                            StartRecording(senderPort, image.Width, image.Height, VIDEO_FPS_NUM, VIDEO_FPS_DEN, VIDEO_ENC_FRAMERATE);
+                            wantImage = false;
+                        }
+
+
+                        //end copy
+                        //if (registeredCameras[senderPort].RecordVideo ||
+                        //    registeredCameras[senderPort].EnableObjectTrigger)
+                        //{
+                        //    bool addFrame = false;
+                        //    Rectangle rectObject = new Rectangle(0, 0, 0, 0);
+                        //    MemoryStream stream = new MemoryStream(imageBytes);
+                        //    Bitmap image = null;
+                        //    image = (Bitmap)Image.FromStream(stream);
+                        //    if (null != registeredCameras[senderPort].BitmapImage)
+                        //    {
+                        //        registeredCameras[senderPort].BitmapImage.Dispose();
+                        //        registeredCameras[senderPort].BitmapImage = null;
+                        //    }
+                        //    registeredCameras[senderPort].BitmapImage = image;
+
+                        //    //lets check if the image is what we expect
+                        //    if (image.PixelFormat != PixelFormat.Format24bppRgb)
+                        //    {
+                        //        string message = String.Format("Image format from {0} is not correct. PixelFormat: {1}",
+                        //                                        senderPort.GetInfo().GetFriendlyName(), image.PixelFormat);
+                        //        logger.Log(message);
+
+                        //        return;
+                        //    }
+
+                        //    // stop if needed
+                        //    StopRecording(senderPort, false /* force*/);
+
+                        //    if (wantImage)
+                        //    {
+                        //        StartRecording(senderPort, image.Width, image.Height, VIDEO_FPS_NUM, VIDEO_FPS_DEN, VIDEO_ENC_FRAMERATE);
+                        //        wantImage = false;
+                        //    }
+
+                        //    //// if recording is underway don't bother that, it will stop after that clip time lapses
+                        //    //// if recording needs to be done only on motion (object) triggers, check with the result of the object
+                        //    //// detector above
+                        //    //if (registeredCameras[senderPort].RecordVideo)
+                        //    //{
+                        //    //    //if record video is still true, see if we need to add his frame
+                        //    //    if (registeredCameras[senderPort].VideoWriter != null || !registeredCameras[senderPort].EnableObjectTrigger)
+                        //    //    {
+                        //    //        addFrame = true;
+                        //    //    }
+                        //    //    else
+                        //    //    {
+                        //    //        if (registeredCameras[senderPort].ObjectFound)
+                        //    //            addFrame = true;
+                        //    //    }
+                        //    //}
+
+                        //    if (registeredCameras[senderPort].RecordVideo)
+                        //    {
+                        //        addFrame = true;
+                        //    }
+                        //    else
+                        //    {
+                        //        if (registeredCameras[senderPort].EnableObjectTrigger &&
+                        //            registeredCameras[senderPort].ObjectFound)
+                        //            addFrame = true;
+                        //    }
+
+                        //    if (addFrame)
+                        //    {
+
+                        //        StartRecording(senderPort, image.Width, image.Height, VIDEO_FPS_NUM, VIDEO_FPS_DEN, VIDEO_ENC_FRAMERATE);
+
+                        //        long sampleTime = (DateTime.Now - registeredCameras[senderPort].CurrVideoStartTime).Ticks;
+
+                        //        //AddFrameToVideo(image, senderPort, sampleTime);
+
+                        //        if (registeredCameras[senderPort].ObjectFound)
+                        //        {
+                        //            registeredCameras[senderPort].ObjectFound = false;
+                        //            rectObject = registeredCameras[senderPort].LastObjectRect;
+                        //            WriteObjectImage(senderPort, image, rectObject, true /* center */);
+                        //        }
+
+                        //    }
+                        //}
                     }
                 }
                 else
@@ -633,34 +671,90 @@ namespace HomeOS.Hub.Apps.CameraImager
         }
 
         // Starts a new recording if there isn't one already under way
-        private void StartRecording(VPort cameraPort, int videoWidth, int videoHeight, int videoFPSNum, int videoFPSDen, int videoEncBitrate)
+        private void TakeImage(VPort cameraPort, int imgWidth, int imgHeight, Image img)
         {
-            if (registeredCameras[cameraPort].VideoWriter != null)
+            if (registeredCameras[cameraPort].BitmapImage == null)
             {
                 return;
             }
 
-            logger.Log("Started new clip for {0}", cameraPort.GetInfo().GetFriendlyName());
+            logger.Log("Taking image for {0}", cameraPort.GetInfo().GetFriendlyName());
             CameraInfo cameraInfo = registeredCameras[cameraPort];
 
-            string fileName = GetMediaFileName(cameraPort.GetInfo().GetFriendlyName(), MediaType.MediaType_Video_MP4);
+            Image test = cameraInfo.BitmapImage;
 
-            if (null == registeredCameras[cameraPort].VideoWriter)
+            string fileName = GetMediaFileName(cameraPort.GetInfo().GetFriendlyName(), MediaType.MediaType_Image_JPEG);
+
+            //if (null == registeredCameras[cameraPort].VideoWriter)
+            //{
+            //    registeredCameras[cameraPort].VideoWriter = new VideoWriter();
+            //}
+
+            //cameraInfo.CurrVideoStartTime = DateTime.Now;
+            //cameraInfo.CurrVideoEndTime = cameraInfo.CurrVideoStartTime + DEFAULT_VIDEO_CLIP_LEN;
+
+            //int result = cameraInfo.VideoWriter.Init(fileName, videoWidth, videoHeight, videoFPSNum, videoFPSDen, videoEncBitrate);
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            img.Save(path + "suckmycock.bmp", ImageFormat.Bmp);
+            
+
+            //if (result != 0)
+            //{
+            //    string message = String.Format("Failed to start recording for {0} at {1}. Error code = {2}",
+            //                                    cameraPort.GetInfo().GetFriendlyName(), DateTime.Now, result);
+            //    logger.Log(message);
+            //}
+        }
+        int i = 0;
+        // Starts a new recording if there isn't one already under way
+        private void StartRecording(VPort cameraPort, int videoWidth, int videoHeight, int videoFPSNum, int videoFPSDen, int videoEncBitrate)
+        {
+            CameraInfo cameraInfo = registeredCameras[cameraPort];
+            Image test = cameraInfo.BitmapImage;
+
+            if (registeredCameras[cameraPort].BitmapImage == null)
             {
-                registeredCameras[cameraPort].VideoWriter = new VideoWriter();
+                return;
             }
 
-            cameraInfo.CurrVideoStartTime = DateTime.Now;
-            cameraInfo.CurrVideoEndTime = cameraInfo.CurrVideoStartTime + DEFAULT_VIDEO_CLIP_LEN;
+            logger.Log("Taking image for {0}", cameraPort.GetInfo().GetFriendlyName());
+            
 
-            int result = cameraInfo.VideoWriter.Init(fileName, videoWidth, videoHeight, videoFPSNum, videoFPSDen, videoEncBitrate);
 
-            if (result != 0)
-            {
-                string message = String.Format("Failed to start recording for {0} at {1}. Error code = {2}",
-                                                cameraPort.GetInfo().GetFriendlyName(), DateTime.Now, result);
-                logger.Log(message);
-            }
+
+            string fileName = GetMediaFileName(cameraPort.GetInfo().GetFriendlyName(), MediaType.MediaType_Image_JPEG);
+            test.Save("suckmycock" + i + ".bmp", ImageFormat.Bmp);
+            i++;
+
+            System.Console.Write("it gets into startRecording");
+            
+            
+            //if (registeredCameras[cameraPort].VideoWriter != null)
+            //{
+            //    return;
+            //}
+
+            //logger.Log("Started new clip for {0}", cameraPort.GetInfo().GetFriendlyName());
+            //CameraInfo cameraInfo = registeredCameras[cameraPort];
+
+            //string fileName = GetMediaFileName(cameraPort.GetInfo().GetFriendlyName(), MediaType.MediaType_Video_MP4);
+
+            //if (null == registeredCameras[cameraPort].VideoWriter)
+            //{
+            //    registeredCameras[cameraPort].VideoWriter = new VideoWriter();
+            //}
+
+            //cameraInfo.CurrVideoStartTime = DateTime.Now;
+            //cameraInfo.CurrVideoEndTime = cameraInfo.CurrVideoStartTime + DEFAULT_VIDEO_CLIP_LEN;
+
+            //int result = cameraInfo.VideoWriter.Init(fileName, videoWidth, videoHeight, videoFPSNum, videoFPSDen, videoEncBitrate);
+
+            //if (result != 0)
+            //{
+            //    string message = String.Format("Failed to start recording for {0} at {1}. Error code = {2}",
+            //                                    cameraPort.GetInfo().GetFriendlyName(), DateTime.Now, result);
+            //    logger.Log(message);
+            //}
         }
 
         private void StopRecording(VPort cameraPort, bool force)
@@ -708,7 +802,9 @@ namespace HomeOS.Hub.Apps.CameraImager
 
             var cameraInfo = registeredCameras[cameraPort];
 
-            cameraInfo.RecordVideo = true;
+            //cameraInfo.RecordVideo = true;
+
+            wantImage = true;
 
             //if recording is going on, but the end time is less than clip length in the future, extend the end time
             if (cameraInfo.VideoWriter != null &&
