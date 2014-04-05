@@ -150,6 +150,20 @@ namespace HomeOS.Hub.Apps.CameraImager
             }
         }
 
+        public List<string> TakeImage(string cameraFriendlyName)
+        {
+            try
+            {
+                camera.TakePic(cameraFriendlyName);
+                return new List<string>() { "" };
+            }
+            catch (Exception e)
+            {
+                logger.Log("Exception in takeimage for {0}: {1}", cameraFriendlyName, e.ToString());
+                return new List<string>() { "Got exception: " + e.Message };
+            }
+        }
+
 
         public List<string> StartOrContinueRecording(string cameraFriendlyName)
         {
@@ -297,6 +311,10 @@ namespace HomeOS.Hub.Apps.CameraImager
         [OperationContract]
         [WebInvoke(Method = "POST", BodyStyle = WebMessageBodyStyle.Wrapped, ResponseFormat = WebMessageFormat.Json)]
         List<string> StartOrContinueRecording(string cameraFriendlyName);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", BodyStyle = WebMessageBodyStyle.Wrapped, ResponseFormat = WebMessageFormat.Json)]
+        List<string> TakeImage(string cameraFriendlyName);
 
         [OperationContract]
         [WebInvoke(Method = "POST", BodyStyle = WebMessageBodyStyle.Wrapped, ResponseFormat = WebMessageFormat.Json)]

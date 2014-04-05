@@ -91,6 +91,7 @@
     <Content Include="Assets\backButton.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\camera.png" />
     <Content Include="Assets\MetroDownArrow.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
