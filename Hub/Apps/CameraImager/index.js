@@ -3,7 +3,7 @@
 // cache the frequently used GetImage Service Helpers
 var g_smartCamGetImageServiceHelper = null;
 var g_isRecording = false;
-var grabPic = false;
+//var grabPic = false;
 var g_keepalive;
 var g_currentCamera = "";
 var g_maxClipsToDisplay = 5;
@@ -110,9 +110,9 @@ function ControlCameraCallback(context, result) {
 
 }
 
-function wantPic() {
-    grabPic = true;
-}
+//function wantPic() {
+//    grabPic = true;
+//}
 function GetImage() {
 
     if (null == g_smartCamGetImageServiceHelper) {
@@ -124,10 +124,10 @@ function GetImage() {
 
 function GetWebImageCallback(context, result) {
     //alert("it gets in the callback");
-    if (grabPic) {
-        $('#justPic').attr('src', "data:image/jpg;base64," + result);
-        grabPic = false;
-    }
+    //if (grabPic) {
+    //    $('#justPic').attr('src', "data:image/jpg;base64," + result);
+    //    grabPic = false;
+    //}
     $('#camera1Image').attr('src', "data:image/jpg;base64," + result);
     GetImage();
 }
@@ -157,7 +157,7 @@ function RecordToggle() {
 
 //Take a picture
 function TakePicture() {
-    alert("Taking a picture!");
+    //alert("Taking a picture!");
     new PlatformServiceHelper().MakeServiceCall("webapp/TakeImage", '{"cameraFriendlyName": "' + g_currentCamera + '"}', RecordVideoCallback);
 }
 

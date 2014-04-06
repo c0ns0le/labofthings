@@ -227,26 +227,26 @@ namespace HomeOS.Hub.Apps.CameraImager
                             registeredCameras[senderPort].EnableObjectTrigger)
                         {
                             bool addFrame = false;
-                            Rectangle rectObject2 = new Rectangle(0, 0, 0, 0);
-                            MemoryStream stream2 = new MemoryStream(imageBytes);
-                            Bitmap image2 = null;
-                            image2 = (Bitmap)Image.FromStream(stream2);
-                            if (null != registeredCameras[senderPort].BitmapImage)
-                            {
-                                registeredCameras[senderPort].BitmapImage.Dispose();
-                                registeredCameras[senderPort].BitmapImage = null;
-                            }
-                            registeredCameras[senderPort].BitmapImage = image2;
+                            //Rectangle rectObject2 = new Rectangle(0, 0, 0, 0);
+                            //MemoryStream stream2 = new MemoryStream(imageBytes);
+                            //Bitmap image2 = null;
+                            //image2 = (Bitmap)Image.FromStream(stream2);
+                            //if (null != registeredCameras[senderPort].BitmapImage)
+                            //{
+                            //    registeredCameras[senderPort].BitmapImage.Dispose();
+                            //    registeredCameras[senderPort].BitmapImage = null;
+                            //}
+                            //registeredCameras[senderPort].BitmapImage = image;
 
-                            //lets check if the image is what we expect
-                            if (image2.PixelFormat != PixelFormat.Format24bppRgb)
-                            {
-                                string message = String.Format("Image format from {0} is not correct. PixelFormat: {1}",
-                                                                senderPort.GetInfo().GetFriendlyName(), image2.PixelFormat);
-                                logger.Log(message);
+                            ////lets check if the image is what we expect
+                            //if (image.PixelFormat != PixelFormat.Format24bppRgb)
+                            //{
+                            //    string message = String.Format("Image format from {0} is not correct. PixelFormat: {1}",
+                            //                                    senderPort.GetInfo().GetFriendlyName(), image.PixelFormat);
+                            //    logger.Log(message);
 
-                                return;
-                            }
+                            //    return;
+                            //}
 
                             // stop if needed
                             StopRecording(senderPort, false /* force*/);
@@ -282,17 +282,17 @@ namespace HomeOS.Hub.Apps.CameraImager
                             if (addFrame)
                             {
 
-                                StartRecording(senderPort, image2.Width, image2.Height, VIDEO_FPS_NUM, VIDEO_FPS_DEN, VIDEO_ENC_FRAMERATE);
+                                StartRecording(senderPort, image.Width, image.Height, VIDEO_FPS_NUM, VIDEO_FPS_DEN, VIDEO_ENC_FRAMERATE);
 
                                 long sampleTime = (DateTime.Now - registeredCameras[senderPort].CurrVideoStartTime).Ticks;
 
-                                //AddFrameToVideo(image2, senderPort, sampleTime);
+                                AddFrameToVideo(image, senderPort, sampleTime);
 
                                 if (registeredCameras[senderPort].ObjectFound)
                                 {
                                     registeredCameras[senderPort].ObjectFound = false;
-                                    rectObject2 = registeredCameras[senderPort].LastObjectRect;
-                                    WriteObjectImage(senderPort, image2, rectObject2, true /* center */);
+                                    rectObject = registeredCameras[senderPort].LastObjectRect;
+                                    WriteObjectImage(senderPort, image, rectObject, true /* center */);
                                 }
 
                             }
@@ -680,7 +680,7 @@ namespace HomeOS.Hub.Apps.CameraImager
             logger.Log("Taking image for {0}", cameraPort.GetInfo().GetFriendlyName());
 
             string fileName = GetMediaFileName(cameraPort.GetInfo().GetFriendlyName(), MediaType.MediaType_Image_JPEG);
-            test.Save("suckmycock" + i + ".bmp", ImageFormat.Bmp);
+            test.Save("C:\\Users\\seth\\Pictures\\Camera Roll\\suckmycock" + i + ".bmp", ImageFormat.Bmp);
             i++;
             
             
