@@ -666,7 +666,7 @@ namespace HomeOS.Hub.Apps.CameraImager
         }
 
         // Starts a new recording if there isn't one already under way
-        int i = 0;
+        //int i = 0;
         private void TakeImage(VPort cameraPort)//, int imgWidth, int imgHeight, Image img)
         {
             CameraInfo cameraInfo = registeredCameras[cameraPort];
@@ -679,9 +679,18 @@ namespace HomeOS.Hub.Apps.CameraImager
 
             logger.Log("Taking image for {0}", cameraPort.GetInfo().GetFriendlyName());
 
-            string fileName = GetMediaFileName(cameraPort.GetInfo().GetFriendlyName(), MediaType.MediaType_Image_JPEG);
-            test.Save("C:\\Users\\seth\\Pictures\\Camera Roll\\suckmycock" + i + ".bmp", ImageFormat.Bmp);
-            i++;
+            string filepath = GetMediaFileName(cameraPort.GetInfo().GetFriendlyName(), MediaType.MediaType_Image_JPEG);
+
+            if (null == filepath)
+            {
+                logger.Log("GetMediaFileName failed to get a file name, are there more than 10 files of the same name?");
+                return;
+            }
+
+            //string fileName = GetMediaFileName(cameraPort.GetInfo().GetFriendlyName(), MediaType.MediaType_Image_JPEG);
+            //test.Save("C:\\Users\\seth\\Pictures\\Camera Roll\\suckmycock" + i + ".bmp", ImageFormat.Bmp);
+            test.Save(filepath, ImageFormat.Jpeg);
+            //i++;
             
             
             //if (registeredCameras[cameraPort].BitmapImage == null)
