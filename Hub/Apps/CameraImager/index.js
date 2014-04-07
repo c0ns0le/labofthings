@@ -157,8 +157,8 @@ function RecordToggle() {
 
 //Take a picture
 function TakePicture() {
-    //alert("Taking a picture!");
     new PlatformServiceHelper().MakeServiceCall("webapp/TakeImage", '{"cameraFriendlyName": "' + g_currentCamera + '"}', RecordVideoCallback);
+    alert("Taking a picture!");
 }
 
 //Starting video will sends start message and starts a timeout to send keepalives.
